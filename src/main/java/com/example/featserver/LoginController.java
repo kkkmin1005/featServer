@@ -18,7 +18,7 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Map<String, String> body) {
 
-        System.out.println("데이터 받음");
+        System.out.println("로그인 데이터 받음");
 
         String userId = body.get("userId");
         String password = body.get("password");
@@ -37,4 +37,28 @@ public class LoginController {
             }
         }
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody Map<String, String> body) {
+
+
+        try{
+            String userId = body.get("userId");
+            String password = body.get("password");
+
+            var newUser = new UserInfo();
+
+            newUser.userId = userId;
+            newUser.userPassword = password;
+
+            userInfoRepository.save(newUser);
+
+            return ResponseEntity.status(200).body("success");
+        }
+        catch(Exception e){
+            return ResponseEntity.status(401).body("fail");
+        }
+    }
+
+
 }
