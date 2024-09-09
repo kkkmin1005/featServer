@@ -17,4 +17,5 @@ public class Posts {
 
     public String image;
     public String music;
+
 }

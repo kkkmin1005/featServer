@@ -15,4 +15,5 @@ public class UserInfo {
     public String userName;
     public String userEmail;
 
+    public String profileImageUrl;
 }
