@@ -14,6 +14,7 @@ import java.util.Optional;
 public class LoginController {
 
     private final UserInfoRepository userInfoRepository;
+    private final UserAlarmRepository userAlarmRepository;
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Map<String, String> body) {
@@ -53,6 +54,14 @@ public class LoginController {
 
             userInfoRepository.save(newUser);
 
+            var newUserAlarm = new UserAlarm();
+
+            newUserAlarm.userId = userId;
+            newUserAlarm.entireAlarm = "off";
+            newUserAlarm.freindAlarm = "off";
+            newUserAlarm.friendRequest = "off";
+
+            userAlarmRepository.save(newUserAlarm);
             return ResponseEntity.status(200).body("success");
         }
         catch(Exception e){
