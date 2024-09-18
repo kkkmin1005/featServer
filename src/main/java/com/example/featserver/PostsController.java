@@ -1,9 +1,7 @@
 package com.example.featserver;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -13,6 +11,7 @@ import java.util.*;
 public class PostsController {
 
     private final PostsRepository postsRepository;
+    private final S3Service s3Service;
 
     @PostMapping("/load/dates")
     public List<LocalDate> loadPDates(@RequestBody Map<String, String> body) {
@@ -48,5 +47,19 @@ public class PostsController {
         return null;
     }
 
+    @PostMapping("/presigned-url")
+    String getURL(@RequestBody Map<String, String> body) {
+        String fileName = body.get("fileName");
+        String userId = body.get("userId");
 
+        var result = s3Service.createPresignedUrl("test/" + fileName);
+
+        var newPost = new Posts();
+
+        newPost.userId = userId;
+        newPost.image = result;
+        newPost.Date = localDate;
+
+        return result;
+    }
 }
