@@ -1,5 +1,5 @@
 package com.example.featserver;
-
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +32,8 @@ public class PostsController {
         return dates;
     }
 
-    @PostMapping("/load/post")
-    public String loadPosts(@RequestBody Map<String, String> body) {
+    @PostMapping("/load/post/bydate")
+    public String loadPostsByDate(@RequestBody Map<String, String> body) {
         String date = body.get("date");
         String userId = body.get("userId");
 
@@ -51,6 +51,9 @@ public class PostsController {
     String getURL(@RequestBody Map<String, String> body) {
         String fileName = body.get("fileName");
         String userId = body.get("userId");
+        String date = body.get("date");
+
+        LocalDate new_date = LocalDate.parse(date);
 
         var result = s3Service.createPresignedUrl("test/" + fileName);
 
@@ -58,8 +61,25 @@ public class PostsController {
 
         newPost.userId = userId;
         newPost.image = result;
-        newPost.Date = localDate;
+        newPost.Date = new_date;
+
+        postsRepository.save(newPost);
 
         return result;
     }
+
+    @PostMapping("/load/posts/home")
+    List<String> loadPostsHome(@RequestBody Map<String, String> body) {
+        String userId = body.get("userId");
+
+        List<String> HomeImages = new ArrayList<>();
+
+        List<Posts> result = postsRepository.findByUserId(userId);
+        for(Posts p : result) {
+            HomeImages.add(p.image);
+        }
+
+        return HomeImages;
+    }
+
 }
