@@ -6,14 +6,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
 public class FriendController {
     private final FriendRepository friendRepository;
     private final AlarmsRepository alarmsRepository;
+    private final UserInfoRepository UserInfoRepository;
+    private final UserInfoRepository userInfoRepository;
 
     @PostMapping("/edit/friendRequest")
     public ResponseEntity<String> acceptFriendRequest(@RequestBody Map<String, String> body){
@@ -24,8 +25,21 @@ public class FriendController {
 
         boolean isFrinedResult;
 
+        var reverseFriend = new Friend();
+
         if(isFriend.equals("true")) {
             isFrinedResult = true;
+
+            String fromNames = userInfoRepository.findByUserId(fromUserId).get().userName;
+            String toNames = userInfoRepository.findByUserId(toUserId).get().userName;
+
+            reverseFriend.fromUserId = toUserId;
+            reverseFriend.toUserId = fromUserId;
+            reverseFriend.isFriend = true;
+            reverseFriend.fromUserName = fromNames;
+            reverseFriend.toUserName = toNames;
+
+            friendRepository.save(reverseFriend);
         }
         else{
             isFrinedResult = false;
@@ -51,9 +65,17 @@ public class FriendController {
         String fromUserId = body.get("userId");
         String toUserId = body.get("toUserId");
 
+        Optional<UserInfo> fromUser = userInfoRepository.findByUserId(fromUserId);
+        Optional<UserInfo> toUser = userInfoRepository.findByUserId(toUserId);
+
+        String fromUserName = fromUser.get().userName;
+        String toUserName = toUser.get().userName;
+
         var newFriendRequest = new Friend();
         var newFriendRequestAlarm = new Alarms();
 
+        newFriendRequest.fromUserName = fromUserName;
+        newFriendRequest.toUserName = toUserName;
         newFriendRequest.fromUserId = fromUserId;
         newFriendRequest.toUserId = toUserId;
         newFriendRequest.isFriend = false;
@@ -67,5 +89,48 @@ public class FriendController {
 
         return ResponseEntity.ok("Friend request request accepted");
     }
+
+    @PostMapping("search/friends")
+    public List<Map<String, String>> searchFriends(@RequestBody Map<String, String> body) {
+        String userId = body.get("userId");
+        String name = body.get("name");
+
+        List<Map<String, String>> returnList = new ArrayList<>();
+
+        // userInfoRepository에서 이름으로 검색
+        List<UserInfo> result = userInfoRepository.findAllByUserName(name);
+
+        // 검색된 결과 리스트를 돌면서 userId와 userName을 반환 리스트에 추가
+        for (UserInfo userInfo : result) {
+            Map<String, String> userMap = new HashMap<>();
+            userMap.put("userId", userInfo.userId);
+            userMap.put("userName", userInfo.userName);
+            returnList.add(userMap);
+        }
+
+        return returnList;
+    }
+
+
+    @PostMapping("load/friends")
+    public List<Map<String, String>> loadFriends(@RequestBody Map<String, String> body) {
+        String userId = body.get("userId");
+
+
+        var result = friendRepository.findByFromUserIdAndIsFriendTrue(userId);
+        List<Map<String, String>> returnList = new ArrayList<>();
+
+        for (Friend friend : result) {
+            Map<String, String> userMap = new HashMap<>();
+            userMap.put("userId", friend.toUserId);
+            userMap.put("userName", friend.toUserName);
+            returnList.add(userMap);
+        }
+
+        return returnList;
+
+    }
+
+
 
 }

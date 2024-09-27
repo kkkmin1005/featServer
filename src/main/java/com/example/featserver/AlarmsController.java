@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 public class AlarmsController {
 
     private final AlarmsRepository alarmsRepository;
+    private final UserInfoRepository userInfoRepository;
 
     @PostMapping("/load/alarms")
     public List<Map<String, Object>> LoadAlarms(@RequestBody Map<String, String> body) {
@@ -26,6 +28,10 @@ public class AlarmsController {
 
         for (Alarms a : alarm) {
             alarms.add(a.toMap());
+            Map<String, Object> additionalData = new HashMap<>();
+            additionalData.put("fromUserName", userInfoRepository.findByUserId(a.fromUserId));
+            additionalData.put("toUserName", userInfoRepository.findByUserId(a.toUserId));
+            alarms.add(additionalData);
         }
         return alarms;
     }

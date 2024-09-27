@@ -13,7 +13,9 @@ public class Friend {
     public Integer id;
 
     public String fromUserId;
+    public String fromUserName;
     public String toUserId;
+    public String toUserName;
     public Boolean isFriend;
 
 }
