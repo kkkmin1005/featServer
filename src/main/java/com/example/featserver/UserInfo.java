@@ -1,9 +1,6 @@
 package com.example.featserver;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +14,10 @@ public class UserInfo {
     public String userPassword;
     public String userName;
     public String userEmail;
+    public String userPhone;
+    public String birthday;
 
+    @Column(columnDefinition = "TEXT")
     public String profileImageUrl;
 
     public Map<String, Object> toMap() {
@@ -26,6 +26,9 @@ public class UserInfo {
         map.put("userId", this.userId);
         map.put("userName", this.userName);
         map.put("profile", this.profileImageUrl);
+        map.put("userEmail", this.userEmail);
+        map.put("userPhone", this.userPhone);
+        map.put("birthday", this.birthday);
         return map;
     }
 }

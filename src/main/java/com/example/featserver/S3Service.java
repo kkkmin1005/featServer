@@ -17,10 +17,11 @@ public class S3Service {
     private String bucket;
     private final S3Presigner s3Presigner;
 
-    String createPresignedUrl(String path) {
+    String createPresignedUrl(String path, String contentType) {
         var putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(path)
+                .contentType(contentType)
                 .build();
         var preSignRequest = PutObjectPresignRequest.builder()
                 .signatureDuration(Duration.ofMinutes(3))

@@ -58,7 +58,7 @@ public class LoginController {
 
             newUserAlarm.userId = userId;
             newUserAlarm.entireAlarm = "off";
-            newUserAlarm.freindAlarm = "off";
+            newUserAlarm.friendAlarm = "off";
             newUserAlarm.friendRequest = "off";
 
             userAlarmRepository.save(newUserAlarm);

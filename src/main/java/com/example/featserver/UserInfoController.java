@@ -2,46 +2,58 @@ package com.example.featserver;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.Optional;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class UserInfoController {
 
     private final UserInfoRepository userInfoRepository;
     private final S3Service s3Service;
 
-    @PostMapping("/edit/profile")
-    public ResponseEntity<String> editProfile(@RequestBody Map<String, String> body){
+    @PostMapping("/load/userInfo")
+    public Map<String, Object> loadUserInfo(@RequestBody Map<String, String> body){
+
+        String userId = body.get("userId");
+
+        Optional<UserInfo> result = userInfoRepository.findByUserId(userId);
+
+        return result.map(UserInfo::toMap).orElse(null);
+    }
+
+    @PostMapping("/upload/profile")
+    public String uploadProfile(@RequestBody Map<String, String> body){
         String userId = body.get("userId");
         String fileName = body.get("fileName");
 
-        // 유저 정보 조회
+        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
+        String finalFileExtension;
+
         Optional<UserInfo> result = userInfoRepository.findByUserId(userId);
 
-        if (result.isPresent()) {
-            UserInfo userInfo = result.get();
+        System.out.println("image/" + fileExtension);
 
-            // S3 URL 생성
-            String imageUrl = s3Service.createPresignedUrl("test/" + fileName);
-
-            // 프로필 이미지 URL 수정
-            userInfo.profileImageUrl = imageUrl;
-
-            // 변경사항 저장
-            userInfoRepository.save(userInfo);
-
-            return ResponseEntity.ok(userInfo.toString());
-        } else {
-            return ResponseEntity.status(401).body("User not found");
+        if(fileExtension.equals("jpg")){
+            finalFileExtension = "image/" + "jpeg";
         }
+        else{
+            finalFileExtension = "image/" + fileExtension;
+        }
+
+        var profile = s3Service.createPresignedUrl("test/" + fileName, finalFileExtension);
+
+        var saveProfile = profile.split("\\?")[0];
+
+        result.get().profileImageUrl = saveProfile;
+
+        userInfoRepository.save(result.get());
+
+        return profile;
     }
-
-
 
 }

@@ -17,7 +17,7 @@ public class UserAlarm {
     public String userId;
 
     public String friendRequest;
-    public String freindAlarm;
+    public String friendAlarm;
     public String entireAlarm;
 
 
@@ -27,7 +27,7 @@ public class UserAlarm {
         map.put("id", this.id);
         map.put("userId", this.userId);
         map.put("friendRequest", this.friendRequest);
-        map.put("freindAlarm", this.freindAlarm);
+        map.put("freindAlarm", this.friendAlarm);
         map.put("entireAlarm", this.entireAlarm);
         return map;
     }

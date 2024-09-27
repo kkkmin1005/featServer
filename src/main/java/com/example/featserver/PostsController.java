@@ -12,8 +12,10 @@ public class PostsController {
 
     private final PostsRepository postsRepository;
     private final S3Service s3Service;
+    private final FriendRepository friendRepository;
+    private final AlarmsRepository alarmsRepository;
 
-    @PostMapping("/load/dates")
+    @PostMapping("/load/dates") // 만약 친구 캘린더를 요청하는 상황이면 userId에 친구 아이디 넣기
     public List<LocalDate> loadPDates(@RequestBody Map<String, String> body) {
 
         List<Posts> result;
@@ -47,15 +49,33 @@ public class PostsController {
         return null;
     }
 
-    @PostMapping("/presigned-url")
+    @PostMapping("/upload/post")
     String getURL(@RequestBody Map<String, String> body) {
         String fileName = body.get("fileName");
         String userId = body.get("userId");
         String date = body.get("date");
 
+        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
+        String finalFileExtension;
+
         LocalDate new_date = LocalDate.parse(date);
 
-        var result = s3Service.createPresignedUrl("test/" + fileName);
+        if(fileExtension.equals("jpg")){
+            finalFileExtension = "image/" + "jpeg";
+        }
+        else{
+            finalFileExtension = "image/" + fileExtension;
+        }
+
+        var result = s3Service.createPresignedUrl("test/" + fileName, finalFileExtension);
+
+        var friend = friendRepository.findByFromUserIdAndIsFriendTrue(userId);
+
+        List<String> toUserIds = new ArrayList<>();
+
+        for(Friend f : friend) {
+            toUserIds.add(f.getToUserId());
+        }
 
         var newPost = new Posts();
 
@@ -65,11 +85,23 @@ public class PostsController {
 
         postsRepository.save(newPost);
 
+        for (String toUserId : toUserIds) {
+            var newAlarm = new Alarms();
+
+            newAlarm.toUserId = toUserId;
+            newAlarm.fromUserId = userId;
+            newAlarm.type = "newPosts";
+
+            alarmsRepository.save(newAlarm);
+        }
+
         return result;
     }
 
     @PostMapping("/load/posts/home")
     List<String> loadPostsHome(@RequestBody Map<String, String> body) {
+        System.out.println("요청 들어옴");
+
         String userId = body.get("userId");
 
         List<String> HomeImages = new ArrayList<>();
@@ -81,5 +113,8 @@ public class PostsController {
 
         return HomeImages;
     }
+
+
+
 
 }

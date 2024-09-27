@@ -42,10 +42,14 @@ public class UserAlarmController {
 
             if (result.get().entireAlarm.equals("on")){
                 result.get().entireAlarm = "off";
+
+                userAlarmRepository.save(result.get());
                 return ResponseEntity.status(200).body("ok");
             }
             else{
                 result.get().entireAlarm = "on";
+
+                userAlarmRepository.save(result.get());
                 return ResponseEntity.status(200).body("ok");
             }
         }
@@ -60,12 +64,16 @@ public class UserAlarmController {
 
         if(result.isPresent()) {
 
-            if (result.get().freindAlarm.equals("on")){
-                result.get().freindAlarm = "off";
+            if (result.get().friendAlarm.equals("on")){
+                result.get().friendAlarm = "off";
+
+                userAlarmRepository.save(result.get());
                 return ResponseEntity.status(200).body("ok");
             }
             else{
-                result.get().freindAlarm = "on";
+                result.get().friendAlarm = "on";
+
+                userAlarmRepository.save(result.get());
                 return ResponseEntity.status(200).body("ok");
             }
         }
@@ -82,10 +90,14 @@ public class UserAlarmController {
 
             if (result.get().friendRequest.equals("on")){
                 result.get().friendRequest = "off";
+
+                userAlarmRepository.save(result.get());
                 return ResponseEntity.status(200).body("ok");
             }
             else{
                 result.get().friendRequest = "on";
+
+                userAlarmRepository.save(result.get());
                 return ResponseEntity.status(200).body("ok");
             }
         }
