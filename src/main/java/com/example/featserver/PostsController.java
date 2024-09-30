@@ -35,15 +35,20 @@ public class PostsController {
     }
 
     @PostMapping("/load/post/bydate")
-    public String loadPostsByDate(@RequestBody Map<String, String> body) {
+    public Map<String, String> loadPostsByDate(@RequestBody Map<String, String> body) {
         String date = body.get("date");
         String userId = body.get("userId");
 
         List<Posts> result = postsRepository.findByUserId(userId);
 
+        Map<String, String> retunResult = new HashMap<>();
+
         for(Posts p : result) {
             if(p.Date.toString().equals(date)) {
-                return p.image;
+                retunResult.put("post" ,p.image);
+                retunResult.put("music", p.music);
+
+                return retunResult;
             }
         }
         return null;
@@ -69,6 +74,8 @@ public class PostsController {
 
         var result = s3Service.createPresignedUrl("test/" + fileName, finalFileExtension);
 
+        var saveResult = result.split("\\?")[0];
+
         var friend = friendRepository.findByFromUserIdAndIsFriendTrue(userId);
 
         List<String> toUserIds = new ArrayList<>();
@@ -80,7 +87,7 @@ public class PostsController {
         var newPost = new Posts();
 
         newPost.userId = userId;
-        newPost.image = result;
+        newPost.image = saveResult;
         newPost.Date = new_date;
 
         postsRepository.save(newPost);
@@ -113,8 +120,4 @@ public class PostsController {
 
         return HomeImages;
     }
-
-
-
-
 }
