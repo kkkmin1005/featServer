@@ -116,6 +116,8 @@ public class FriendController {
     public List<Map<String, String>> loadFriends(@RequestBody Map<String, String> body) {
         String userId = body.get("userId");
 
+        System.out.println("서버로 친구 로드 요청 보냄");
+
 
         var result = friendRepository.findByFromUserIdAndIsFriendTrue(userId);
         List<Map<String, String>> returnList = new ArrayList<>();

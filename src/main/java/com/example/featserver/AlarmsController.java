@@ -27,11 +27,11 @@ public class AlarmsController {
         var alarm = alarmsRepository.findByToUserId(userId);
 
         for (Alarms a : alarm) {
-            alarms.add(a.toMap());
-            Map<String, Object> additionalData = new HashMap<>();
-            additionalData.put("fromUserName", userInfoRepository.findByUserId(a.fromUserId));
-            additionalData.put("toUserName", userInfoRepository.findByUserId(a.toUserId));
-            alarms.add(additionalData);
+            Map<String, Object> alarmMap = a.toMap();
+            alarmMap.put("fromUserName", userInfoRepository.findByUserId(a.fromUserId).get().userId);
+            alarmMap.put("toUserName", userInfoRepository.findByUserId(a.toUserId).get().userId);
+            alarmMap.put("fromUserProfile", userInfoRepository.findByUserId(a.fromUserId).get().profileImageUrl);
+            alarms.add(alarmMap);
         }
         return alarms;
     }

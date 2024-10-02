@@ -105,6 +105,16 @@ public class PostsController {
         return result;
     }
 
+    @PostMapping("/load/musics")
+    List<String> loadMusics(@RequestBody Map<String, String> body) {
+
+        String userId = body.get("userId");
+        String imageUrl = body.get("url");
+
+        imageUrl = imageUrl.split("\\?")[0];
+
+    }
+
     @PostMapping("/load/posts/home")
     List<String> loadPostsHome(@RequestBody Map<String, String> body) {
         System.out.println("요청 들어옴");
